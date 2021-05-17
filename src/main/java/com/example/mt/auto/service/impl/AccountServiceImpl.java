@@ -22,6 +22,7 @@ public class AccountServiceImpl implements IAccountService {
     public static void main(String[] args) {
         accountLogin2();
     }
+
     @Override
     public void accountLogin() {
 

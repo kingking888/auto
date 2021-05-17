@@ -9,6 +9,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 @Component
@@ -24,19 +26,27 @@ public class ScheduleTimer {
     // "55 29 14 ? * *" 每天下午2:29:55触发
     // "0/5 * * * * ?" 每5秒钟执行一次
 
-//    @Scheduled(cron = "55 0/1 16 * * ?")
+//    @Scheduled(cron = "55 0/1 21 * * ?")
 //    public void fetchData() {
 //        System.out.println(DateUtil.getDateToString(System.currentTimeMillis())+"____aaaaaaaaaa");
 //    }
 
 
+    /**
+     * 循环check账号
+     */
     @Scheduled(cron = "0/10 * * * * ?")
     public void fetchData2() {
-        accountService.accountLogin();
-//        List<AccountVO> list = accountService.getTwoAccount();
-//        if (list.size() > 0) {
-//            accountService.checkRestrictedArea(list.get(0),0);
-//        }
+        List<AccountVO> list = accountService.getTwoAccount();
+        for (int i=0;i<list.size();i++){
+            // 创建多线程发送请求
+            new Thread(""+i){
+                public void run(){
+                    int index = Integer.parseInt(Thread.currentThread().getName());
+                    accountService.checkRestrictedArea(list.get(index),index);
+                }
+            }.start();
+        }
         System.out.println(DateUtil.getDateToString(System.currentTimeMillis())+"_____");
     }
 
