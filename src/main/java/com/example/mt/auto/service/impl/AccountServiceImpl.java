@@ -7,6 +7,7 @@ import com.example.mt.auto.request.RequestUtil;
 import com.example.mt.auto.service.IAccountService;
 import com.example.mt.auto.util.DateUtil;
 import com.example.mt.auto.util.MD5;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -16,6 +17,7 @@ import java.util.List;
 /**
  * 账号服务接口类
  */
+@Slf4j
 @Service
 public class AccountServiceImpl implements IAccountService {
 
@@ -25,7 +27,6 @@ public class AccountServiceImpl implements IAccountService {
 
     @Override
     public void accountLogin() {
-
     }
 
     public static void accountLogin2() {
@@ -45,7 +46,7 @@ public class AccountServiceImpl implements IAccountService {
         param = param + "&signcode=" + postSignCode;
         System.out.println(param);
         String result = HttpRequest.sendPost("https://guilvp.gzlex.com/api/transaction/purchase/checkRestrictedArea", param);
-        System.out.println(result);
+        log.info(result);
         // _s_q__=aaa&appkey=gl_android_e028d74&client=android&deviceId=8d484757-917e-3175-991b-4af6ce248d75
         // &encrypt=1&password=123456asdfG&timestamp=1618885177083&uinfo=18988768578&version=2.1.0&signcode=538da9b767127480c970b6579c3a802e
     }
@@ -92,6 +93,15 @@ public class AccountServiceImpl implements IAccountService {
      */
     @Override
     public void checkRestrictedArea(AccountVO vo,int index) {
+        try {
+            checkRestrictedAreaExce(vo,index);
+        } catch (InterruptedException e) {
+            log.error("checkRestrictedArea error: " + e.getMessage());
+        }
+
+    }
+
+    public void checkRestrictedAreaExce(AccountVO vo,int index) throws InterruptedException {
         // 获取系统当前时间戳  注：tick为13位
         String tick = String.valueOf(System.currentTimeMillis());
         String sq = RequestUtil.getSq();
@@ -106,8 +116,10 @@ public class AccountServiceImpl implements IAccountService {
         String sr = "";
         String resultCode = "";
         JSONObject object = JSONObject.parseObject(sr);
-        // 循环验证2000次
-        for (int i = 0; i <= 1; i++) {
+        // 循环验证1000次
+        for (int i = 0; i <= 1000; i++) {
+            // 休眠200 毫秒
+            Thread.sleep(200);
             if (!StringUtils.isEmpty(resultCode)) {
                 resultCode = object.getJSONObject("message").getString("code");
             }
@@ -129,10 +141,10 @@ public class AccountServiceImpl implements IAccountService {
                 String postSignCode2 = MD5.getSignCode(postParam2);
                 // 将加密值拼接到请求参数中
                 postParam2 = postParam2 + "&signcode=" + postSignCode2;
+                log.info("postParam2 = " + postParam2);
                 //发送 POST 请求
                 sr = HttpRequest.sendPost("https://guilvp.gzlex.com/api/transaction/purchase/checkRestrictedArea", postParam2);
-
-                System.out.println("erpCode=" + erpCode + "__i=" + i + "__index=" + index + "____" + DateUtil.getDateToString(System.currentTimeMillis()) + "__" + sr);
+                log.info("erpCode=" + erpCode + "__i=" + i + "__index=" + index + "____" + DateUtil.getDateToString(System.currentTimeMillis()) + "__" + sr);
                 /*
                 String resultMessage = object.getJSONObject("message").getString("message");
                 if(!StringUtil.isBlank(resultMessage) && "商品库存不足！".equals(resultMessage)) {
