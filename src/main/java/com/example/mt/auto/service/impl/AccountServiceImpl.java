@@ -27,6 +27,7 @@ public class AccountServiceImpl implements IAccountService {
 
     @Override
     public void accountLogin() {
+        log.info("this is Slf4j log________________");
     }
 
     public static void accountLogin2() {

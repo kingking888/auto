@@ -32,11 +32,10 @@ public class ScheduleTimer {
     /**
      * 循环check账号 每十秒钟
      */
-//    @Scheduled(cron = "0/5 * * * * ?")
-//    public void fetchData() {
-//        accountService.accountLogin();
-//        System.out.println(DateUtil.getDateToString(System.currentTimeMillis())+"___this system.out.println log__");
-//    }
+    @Scheduled(cron = "0/10 * * * * ?")
+    public void fetchData() {
+        accountService.accountLogin();
+    }
 
     /**
      * 定时check,上午九点半,提前2秒
